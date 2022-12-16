@@ -76,6 +76,15 @@ const findShortestPath = (startNode, endNode) => {
   return results;
 }
 
+const distances = {};
+data.forEach(item1 => {
+  distances[item1.valve] = {};
+  data.forEach(item2 => {
+    const path = findShortestPath(item1.valve, item2.valve);
+    distances[item1.valve][item2.valve] = path.distance;
+  });
+});
+
 let mostPressure = -Infinity;
 const traverse = (currentValve, openValves = [], timeLeft = 30, pressure = 0) => {
   if (timeLeft < 0) {
@@ -96,16 +105,16 @@ const traverse = (currentValve, openValves = [], timeLeft = 30, pressure = 0) =>
   // Try opening each valve
   if (openValves.length !== nonZeroValves.length) {
     const next = nonZeroValves.filter(v => !openValves.includes(v)).map(valve => {
-      const path = findShortestPath(currentValve, valve);
-      const nextPressure = pressure + openValves.map(valve => graph[valve].flowRate * (path.distance + 1)).reduce(sum, 0);
+      const distance = distances[currentValve][valve];
+      const nextPressure = pressure + openValves.map(valve => graph[valve].flowRate * (distance + 1)).reduce(sum, 0);
       return {
-        distance: path.distance + 1,
-        estimate: graph[valve].flowRate * (timeLeft - (path.distance + 1)),
+        distance: distance + 1,
+        estimate: graph[valve].flowRate * (timeLeft - (distance + 1)),
         nextPressure,
         valve
       }
     }).sort((a, b) => b.estimate - a.estimate);
-    next.slice(0, 8).forEach(item => {
+    next.forEach(item => {
       traverse(
         item.valve,
         [...openValves, item.valve],
