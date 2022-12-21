@@ -1,3 +1,4 @@
+const utils = require('../../utils.js');
 const fs = require('fs');
 const rawData = fs.readFileSync('data.txt').toString();
 const data = rawData.trim().split('\r\n').map(row => row.split(': ')).map(([a, b]) => b.includes(' ') ? [a, ...b.split(' ')] : [a, Number(b)]);
